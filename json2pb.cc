@@ -114,8 +114,10 @@ static json_t * _pb2json(const Message& msg)
 	std::vector<const FieldDescriptor *> fields;
 	ref->ListFields(msg, &fields);
 
-	for (size_t i = 0; i != fields.size(); i++)
+//	for (size_t i = 0; i < d->field_count(); i++) //loop all fields
+	for (size_t i = 0; i != fields.size(); i++) 
 	{
+		//const FieldDescriptor *field = d->field(i); //loop all fields
 		const FieldDescriptor *field = fields[i];
 
 		json_t *jf = 0;
@@ -130,7 +132,43 @@ static json_t * _pb2json(const Message& msg)
 		} else if (ref->HasField(msg, field))
 			jf = _field2json(msg, field, 0);
 		else
+		{
+			/*if default value is necessary for json, it also must loop all fields
+			switch (field->cpp_type())
+			{
+			case FieldDescriptor::CPPTYPE_STRING:
+				jf = json_string("");
+				break;
+			case FieldDescriptor::CPPTYPE_BOOL:
+				jf = json_boolean(false);
+				break;
+			case FieldDescriptor::CPPTYPE_INT32:
+				jf = json_integer(0);
+				break;
+			case FieldDescriptor::CPPTYPE_INT64:
+				jf = jjson_integer(0);
+				break;
+			case FieldDescriptor::CPPTYPE_UINT32:
+				jf = json_integer(0);
+				break;
+			case FieldDescriptor::CPPTYPE_UINT64:
+				jf = json_integer(0);
+				break;
+			case FieldDescriptor::CPPTYPE_FLOAT:
+				jf = json_real(0.0);
+				break;
+			case FieldDescriptor::CPPTYPE_DOUBLE:
+				jf = json_real(0.0);
+				break;
+			case FieldDescriptor::CPPTYPE_ENUM:
+				jf = json_integer(0);
+				break;
+			default:
+				continue;
+			}
+			*/
 			continue;
+		}
 
 		const std::string &name = (field->is_extension())?field->full_name():field->name();
 		json_object_set_new(root, name.c_str(), jf);
